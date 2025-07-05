@@ -27,17 +27,17 @@ export function TodoForm({
   };
 
   return (
-    <Card className="mb-8">
-      <CardHeader>
-        <CardTitle>发布新消息</CardTitle>
+    <Card className="mb-4">
+      <CardHeader className="pb-0">
+        <CardTitle className="text-base">发布新消息</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col space-y-4">
+        <div className="flex flex-col space-y-2">
           <Textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="请输入消息内容"
-            className="h-24 w-full"
+            className="h-20 w-full"
             maxLength={50}
             disabled={!isContractDeployed}
           />
@@ -46,6 +46,7 @@ export function TodoForm({
             <Button
               onClick={handleSubmit}
               disabled={!isConnected || !message || isLoading || !isContractDeployed}
+              size="sm"
             >
               {isLoading ? '发布中...' : '发布消息'}
             </Button>

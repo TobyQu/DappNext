@@ -56,7 +56,7 @@ export function ContractStatus() {
   // 如果未挂载或正在检查，显示加载状态
   if (!mounted || isChecking) {
     return (
-      <div className="mb-4 p-3 bg-gray-50 rounded-md">
+      <div className="mb-3 p-2 bg-gray-50 rounded-md">
         正在检查合约状态...
       </div>
     );
@@ -65,7 +65,7 @@ export function ContractStatus() {
   // 如果配置表明已部署但合约不存在
   if (isDeployed && !isVerified) {
     return (
-      <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md">
+      <div className="mb-3 p-2 bg-red-50 text-red-700 rounded-md">
         配置显示合约已部署，但在区块链上未找到该合约。请检查网络连接或重新部署合约。
       </div>
     );
@@ -78,7 +78,7 @@ export function ContractStatus() {
   
   // 如果合约未部署
   return (
-    <div className="mb-4 p-3 bg-yellow-50 text-yellow-700 rounded-md">
+    <div className="mb-3 p-2 bg-yellow-50 text-yellow-700 rounded-md">
       合约尚未部署。请使用上方的部署功能部署合约。
     </div>
   );

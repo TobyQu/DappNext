@@ -63,9 +63,9 @@ export function DeployContract() {
   // 如果未挂载，返回一个加载占位符
   if (!mounted) {
     return (
-      <div className="border rounded-lg p-4 mb-6 bg-white shadow-sm">
-        <h2 className="text-xl font-semibold mb-4">合约部署</h2>
-        <div className="h-20 flex items-center justify-center">
+      <div className="border rounded-md p-3 mb-4 bg-white shadow-none">
+        <h2 className="text-lg font-semibold mb-2">合约部署</h2>
+        <div className="h-16 flex items-center justify-center">
           <p className="text-gray-500">加载中...</p>
         </div>
       </div>
@@ -75,12 +75,12 @@ export function DeployContract() {
   // 如果合约已部署，显示已部署状态
   if (isDeployed && contractAddress !== "0x0000000000000000000000000000000000000000") {
     return (
-      <div className="border rounded-lg p-4 mb-6 bg-green-50 shadow-sm">
-        <h2 className="text-xl font-semibold mb-2">合约已部署</h2>
-        <p className="mb-4 text-gray-600">
+      <div className="border rounded-md p-3 mb-3 bg-green-50 shadow-none">
+        <h2 className="text-lg font-semibold mb-1">合约已部署</h2>
+        <p className="mb-2 text-gray-600">
           合约已成功部署，可以使用下方功能。
         </p>
-        <div className="mt-2 p-2 bg-gray-50 rounded border text-sm break-all">
+        <div className="mt-1 p-2 bg-gray-50 rounded border text-sm break-all">
           <span className="font-medium">合约地址: </span>
           {contractAddress}
         </div>
@@ -90,16 +90,16 @@ export function DeployContract() {
   
   // 如果合约未部署，显示部署界面
   return (
-    <div className="border rounded-lg p-4 mb-6 bg-white shadow-sm">
-      <h2 className="text-xl font-semibold mb-4">合约部署</h2>
+    <div className="border rounded-md p-3 mb-3 bg-white shadow-none">
+      <h2 className="text-lg font-semibold mb-2">合约部署</h2>
       
       {!isConnected ? (
-        <div className="p-3 mb-4 bg-yellow-50 text-yellow-700 rounded-md">
+        <div className="p-2 mb-2 bg-yellow-50 text-yellow-700 rounded-md">
           请先连接钱包以部署合约
         </div>
       ) : (
         <>
-          <p className="mb-4 text-gray-600">
+          <p className="mb-3 text-gray-600">
             您需要部署智能合约以使用Todo DApp功能。部署需要支付少量ETH用于燃料费。
           </p>
           
@@ -112,13 +112,13 @@ export function DeployContract() {
           </Button>
           
           {statusMessage && (
-            <div className="mt-4 p-3 bg-blue-50 text-blue-700 rounded-md">
+            <div className="mt-2 p-2 bg-blue-50 text-blue-700 rounded-md">
               {statusMessage}
             </div>
           )}
           
           {deployedAddress && (
-            <div className="mt-4 p-2 bg-gray-50 rounded border text-sm break-all">
+            <div className="mt-2 p-2 bg-gray-50 rounded border text-sm break-all">
               <span className="font-medium">合约地址: </span>
               {deployedAddress}
             </div>

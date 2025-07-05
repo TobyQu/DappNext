@@ -27,29 +27,30 @@ export function TodoHeader({
   return (
     <>
       {!isContractDeployed && (
-        <Alert className="mb-8 bg-yellow-50 border-yellow-200 text-yellow-800">
+        <Alert className="mb-4 bg-yellow-50 border-yellow-200 text-yellow-800">
           <AlertDescription>
-            <h2 className="text-xl font-semibold text-yellow-800">演示模式</h2>
-            <p className="mt-2">
+            <h2 className="text-lg font-semibold text-yellow-800">演示模式</h2>
+            <p className="mt-1">
               当前处于演示模式，未连接实际部署的合约。要使用完整功能，请部署合约并更新代码中的CONTRACT_ADDRESS变量，然后将IS_CONTRACT_DEPLOYED设置为true。
             </p>
           </AlertDescription>
         </Alert>
       )}
 
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
+      <Card className="mb-4 shadow-none border rounded-md">
+        <CardHeader className="p-3 pb-0">
+          <CardTitle className="flex items-center justify-between text-base">
             <span>合约账户余额: {balance} ETH</span>
             <Badge variant="outline">{isConnected ? "已连接" : "未连接"}</Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="flex space-x-4">
+        <CardContent className="p-3 pt-2">
+          <div className="flex space-x-3">
             <Button
               onClick={getBalance}
               disabled={!isConnected || !isContractDeployed}
               variant="outline"
+              size="sm"
             >
               刷新余额
             </Button>
@@ -57,6 +58,7 @@ export function TodoHeader({
               onClick={withdraw}
               disabled={!isConnected || isWithdrawing || !isContractDeployed}
               variant="default"
+              size="sm"
             >
               {isWithdrawing ? '提款中...' : '我要提款'}
             </Button>

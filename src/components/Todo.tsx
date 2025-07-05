@@ -154,14 +154,14 @@ export function Todo() {
   // 如果组件未挂载，返回加载中占位符，避免水合错误
   if (!mounted) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="py-8 text-center text-gray-500">加载中...</div>
+      <div className="container mx-auto px-2 py-4">
+        <div className="py-4 text-center text-gray-500">加载中...</div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-2 py-4">
       <TodoHeader 
         balance={balance}
         isConnected={isConnected}
@@ -179,7 +179,7 @@ export function Todo() {
       />
 
       {statusMessage && (
-        <div className="mb-4 p-3 bg-blue-50 text-blue-700 rounded-md">
+        <div className="mb-3 p-2 bg-blue-50 text-blue-700 rounded-md">
           {statusMessage}
         </div>
       )}
