@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import '@rainbow-me/rainbowkit/styles.css';
 import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { configureChains, createClient, WagmiConfig, Chain } from 'wagmi';
@@ -44,17 +45,36 @@ const { connectors } = getDefaultWallets({
   chains
 });
 
+// 检查用户之前是否已连接钱包
+function wasWalletConnected(): boolean {
+  if (typeof window === 'undefined') return false;
+  
+  // RainbowKit/wagmi 在 localStorage 中存储连接状态
+  const rainbowKitConnection = localStorage.getItem('rk-connected');
+  const wagmiConnection = localStorage.getItem('wagmi.connected');
+  
+  return rainbowKitConnection === 'true' || wagmiConnection === 'true';
+}
+
+// 根据之前的连接状态创建客户端
 const wagmiClient = createClient({
-  autoConnect: true,
+  autoConnect: wasWalletConnected(), // 如果之前连接过，则自动连接
   connectors,
   provider
 });
 
 export function Providers({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // 使用挂载检查确保hydration不会出问题
   return (
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider chains={chains}>
-        {children}
+        {mounted ? children : null}
       </RainbowKitProvider>
     </WagmiConfig>
   );

@@ -77,4 +77,15 @@ export async function checkContractExists(provider: ethers.providers.Provider, a
     console.error('检查合约存在出错:', error);
     return false;
   }
+}
+
+/**
+ * 清除本地存储的合约部署信息
+ * 当用户断开钱包连接时调用
+ */
+export function clearContractDeploymentInfo(): void {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('CONTRACT_ADDRESS');
+    localStorage.removeItem('IS_CONTRACT_DEPLOYED');
+  }
 } 
