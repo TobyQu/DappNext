@@ -10,10 +10,6 @@ import { TodoList } from '@/components/TodoList';
 import { Todo as TodoType, getContract } from '@/lib/contract';
 import { isContractDeployed } from '@/lib/contractUtils';
 
-
-
-
-
 export function Todo() {
   const [todoList, setTodoList] = useState<TodoType[]>([]);
   const [balance, setBalance] = useState<string>('0');

@@ -221,18 +221,75 @@ export function timestampToDate(timestamp: number): string {
   return date.toLocaleString('zh-CN');
 }
 
-// 获取合约实例
-export function getContract(provider: any, signer: any): ethers.Contract | null {
+/**
+ * 获取以太坊提供者
+ * @returns 以太坊提供者实例
+ */
+export const getProvider = async () => {
   try {
-    // 在实际环境中，应该先检查合约是否部署
-    // 这里依赖调用方在使用前检查isContractDeployed()
-    return new ethers.Contract(
-      CONTRACT_ADDRESS,
-      contractABI,
-      signer || provider
-    );
+    // 浏览器环境
+    if (typeof window !== 'undefined' && window.ethereum) {
+      return new ethers.providers.Web3Provider(window.ethereum);
+    }
+    
+    // 后端环境或无钱包
+    return new ethers.providers.JsonRpcProvider('http://localhost:8545');
   } catch (error) {
-    console.error('初始化合约失败:', error);
-    return null;
+    console.error('获取以太坊提供者时出错:', error);
+    // 回退到本地 RPC
+    return new ethers.providers.JsonRpcProvider('http://localhost:8545');
   }
-} 
+};
+
+/**
+ * 获取签名者（已连接的钱包）
+ * @returns 签名者实例
+ */
+export const getSigner = async () => {
+  try {
+    if (typeof window !== 'undefined' && window.ethereum) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      
+      // 请求用户连接钱包
+      try {
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+      } catch (connectionError) {
+        console.error('连接钱包时出错:', connectionError);
+        throw new Error('用户拒绝连接钱包');
+      }
+      
+      return provider.getSigner();
+    }
+    
+    throw new Error('未检测到钱包扩展程序');
+  } catch (error) {
+    console.error('获取签名者时出错:', error);
+    throw error;
+  }
+};
+
+/**
+ * 获取合约实例
+ * @param provider 以太坊提供者
+ * @param signer 签名者（可选）
+ * @returns 合约实例
+ */
+export const getContract = (provider: any, signer: any = null) => {
+  const contractInstance = new ethers.Contract(
+    CONTRACT_ADDRESS,
+    contractABI,
+    provider
+  );
+  
+  // 如果提供了签名者，返回具有写入权限的合约实例
+  if (signer) {
+    try {
+      return contractInstance.connect(signer);
+    } catch (error) {
+      console.error('连接签名者失败:', error);
+      return contractInstance;
+    }
+  }
+  
+  return contractInstance;
+}; 

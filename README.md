@@ -1,120 +1,132 @@
-# Next.js DApp - Todo应用
+# DappNext
 
-这是一个基于Next.js和Web3技术构建的去中心化Todo应用。用户可以通过连接钱包来发布消息并管理合约资金。
+基于 Next.js 的去中心化应用开发框架，集成了 Hardhat、Ethers.js 和 RainbowKit，用于快速开发以太坊 DApp。
 
-## 功能
+## 功能特点
 
-- 钱包连接与认证
-- 智能合约部署（浏览器内直接部署）
-- 发布消息（需支付ETH）
-- 查看消息列表
-- 合约余额查看与提款（仅合约拥有者）
+- 📱 响应式 UI，基于 Next.js 和 Tailwind CSS
+- 🔗 内置钱包连接功能，使用 RainbowKit
+- 📝 智能合约开发和部署，使用 Hardhat
+- 🧩 模块化组件设计
 
-## 技术栈
+## 项目结构
 
-- Next.js 15
-- React 19
-- Ethers.js 5.7
-- Hardhat (智能合约开发框架)
-- Solidity 0.8.19 (智能合约语言)
-- RainbowKit & wagmi (钱包连接)
-- Shadcn/UI (组件库)
-- Tailwind CSS (样式)
+```
+DappNext/
+├── contracts/            # 智能合约代码
+│   ├── TodoContract.sol  # 示例 Todo 合约
+│   ├── MyToken.sol       # 基础 ERC-20 代币合约
+│   └── AdvancedToken.sol # 高级 ERC-20 代币合约（带铸造和销毁功能）
+├── scripts/              # 部署和测试脚本
+│   ├── deploy.js         # 部署脚本
+│   ├── deploy-token.js   # 部署基础代币脚本
+│   └── deploy-advanced-token.js # 部署高级代币脚本
+├── src/                  # 前端源代码
+│   ├── app/              # Next.js 应用页面
+│   ├── components/       # React 组件
+│   └── lib/              # 工具库和合约交互
+└── hardhat.config.cjs    # Hardhat 配置
+```
 
 ## 快速开始
-
-### 环境配置
-
-1. 复制环境变量示例文件
-```bash
-cp .env.example .env.local
-```
-
-2. 修改`.env.local`文件，配置以下环境变量：
-
-```
-# 合约配置
-NEXT_PUBLIC_CONTRACT_ADDRESS=你的合约地址
-NEXT_PUBLIC_IS_CONTRACT_DEPLOYED=true或false
-
-# 网络配置（可选）
-NEXT_PUBLIC_CHAIN_ID=1
-NEXT_PUBLIC_NETWORK_NAME=Ethereum Mainnet
-```
 
 ### 安装依赖
 
 ```bash
-yarn install
+npm install
+# 或
+yarn
 ```
 
-### 开发环境运行
+### 启动本地开发链
 
 ```bash
+npx hardhat node
+```
+
+### 部署合约到本地链
+
+```bash
+# 部署 Todo 合约
+npx hardhat run scripts/deploy.js --network localhost
+
+# 部署基础 ERC-20 代币
+npx hardhat run scripts/deploy-token.js --network localhost
+
+# 部署高级 ERC-20 代币
+npx hardhat run scripts/deploy-advanced-token.js --network localhost
+```
+
+### 启动前端开发服务器
+
+```bash
+npm run dev
+# 或
 yarn dev
 ```
 
-### 构建生产版本
+## 代币开发指南
 
+本项目包含两种代币合约实现：
+
+### 1. 基础 ERC-20 代币 (MyToken.sol)
+
+- 标准 ERC-20 实现
+- 初始供应量在部署时设定
+- 支持基本的转账和余额查询功能
+
+部署和使用：
 ```bash
-yarn build
-yarn start
+# 部署合约
+npx hardhat run scripts/deploy-token.js --network localhost
+
+# 更新合约地址
+# 将输出的合约地址复制到 src/lib/tokenContract.ts 中的 TOKEN_CONTRACT_ADDRESS 变量
 ```
 
-## 部署合约
+访问 `/token` 路径使用基础代币功能。
 
-有两种方式可以部署合约：
+### 2. 高级 ERC-20 代币 (AdvancedToken.sol)
 
-### 1. 使用浏览器内部署
+- 扩展的 ERC-20 实现
+- 支持自定义名称、符号和小数位数
+- 支持铸造新代币（仅合约所有者）
+- 支持销毁代币
+- 支持设置最大供应量
 
-应用内置了合约部署功能，只需连接钱包，点击"部署合约"按钮即可。部署后会自动存储合约地址并启用合约功能。
-
-### 2. 使用Hardhat部署
-
-如果需要在本地开发环境或测试网络上部署合约，可以使用以下命令：
-
+部署和使用：
 ```bash
-# 启动本地开发节点
-yarn node
+# 部署合约
+npx hardhat run scripts/deploy-advanced-token.js --network localhost
 
-# 部署到本地节点
-yarn deploy:local
-
-# 部署到Goerli测试网
-yarn deploy:goerli
+# 更新合约地址
+# 将输出的合约地址复制到 src/lib/advancedTokenContract.ts 中的 ADVANCED_TOKEN_CONTRACT_ADDRESS 变量
 ```
 
-部署成功后，会自动更新`.env.local`文件中的合约地址和部署状态。
+访问 `/advanced-token` 路径使用高级代币功能。
 
-### 合约源码
+## 测试网部署
 
-合约源码位于`contracts/TodoContract.sol`，主要功能包括：
+要部署到以太坊测试网（如 Goerli、Sepolia），请更新 `hardhat.config.cjs` 文件，添加相应的网络配置和私钥。
 
-- 发布消息（需支付0.1 ETH）
-- 查询消息列表
-- 查询合约余额
-- 提取合约资金（仅合约拥有者）
+```javascript
+module.exports = {
+  // ...
+  networks: {
+    // ...
+    goerli: {
+      url: `https://goerli.infura.io/v3/${INFURA_API_KEY}`,
+      accounts: [PRIVATE_KEY]
+    }
+  }
+};
+```
 
-## 项目结构
+然后运行：
 
-- `contracts/` - 智能合约源码
-  - `TodoContract.sol` - Todo合约
-- `scripts/` - 部署脚本
-  - `deploy.ts` - 合约部署脚本
-  - `updateBytecode.ts` - 字节码更新脚本
-- `src/components/` - React组件
-  - `ui/` - Shadcn UI组件
-  - `Todo.tsx` - 主应用组件
-  - `TodoHeader.tsx` - 头部组件
-  - `TodoForm.tsx` - 消息发布表单
-  - `TodoList.tsx` - 消息列表
-  - `DeployContract.tsx` - 合约部署组件
-- `src/lib/` - 工具函数和配置
-  - `contract.ts` - 合约ABI和基础功能
-  - `contractUtils.ts` - 合约部署和管理工具
-  - `config.ts` - 应用配置
-- `public/` - 静态资源
-- `hardhat.config.ts` - Hardhat配置文件
+```bash
+npx hardhat run scripts/deploy-token.js --network goerli
+```
 
 ## 许可证
 

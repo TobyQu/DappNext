@@ -1,12 +1,13 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
 import { Providers } from '@/components/Providers'
+import { Header } from '@/components/Header'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'Web3 DApp',
-  description: '使用Next.js、RainbowKit和shadcn/ui构建的Web3 DApp',
+  title: 'Web3 ',
+  description: '使用Next.js、RainbowKit和shadcn/ui构建的Web3 ',
 }
 
 export default function RootLayout({
@@ -18,7 +19,12 @@ export default function RootLayout({
     <html lang="zh-CN">
       <body className={inter.className}>
         <Providers>
-          {children}
+          <div className="min-h-screen bg-gray-50">
+            <Header />
+            <div className="pt-2">
+              {children}
+            </div>
+          </div>
         </Providers>
       </body>
     </html>
