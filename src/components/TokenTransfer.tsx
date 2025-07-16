@@ -75,7 +75,8 @@ export default function TokenTransfer() {
         setError(`转账失败: ${result.error}`);
       }
     } catch (err) {
-      setError(`发生错误: ${err.message}`);
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      setError(`发生错误: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
