@@ -19,6 +19,7 @@ export function Header() {
     { name: '首页', path: '/' },
     { name: '代币', path: '/token' },
     { name: '高级代币', path: '/advanced-token' },
+    { name: '代币市场', path: '/market' },
   ];
 
   // 判断链接是否活跃

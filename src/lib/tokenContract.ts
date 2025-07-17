@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import config, { isValidContractAddress } from './config';
 
 // MyToken合约ABI
 export const MyTokenABI = [
@@ -21,9 +22,9 @@ const isEthereumAvailable = () => {
 
 // 获取连接到合约的方法
 export function getTokenContract(provider?: any, contractAddress?: string) {
-  const tokenAddress = contractAddress || process.env.NEXT_PUBLIC_TOKEN_CONTRACT_ADDRESS;
-  if (!tokenAddress || tokenAddress === "0x0000000000000000000000000000000000000000") {
-    console.error("未设置代币合约地址或地址无效");
+  const tokenAddress = contractAddress || config.contract.tokenAddress;
+  if (!isValidContractAddress(tokenAddress)) {
+    // 不输出错误日志，只是安静地返回null
     return null;
   }
   
@@ -50,9 +51,9 @@ export function getTokenContract(provider?: any, contractAddress?: string) {
 
 // 获取用于写入操作的合约
 export function getTokenContractWithSigner(signer?: any, contractAddress?: string) {
-  const tokenAddress = contractAddress || process.env.NEXT_PUBLIC_TOKEN_CONTRACT_ADDRESS;
-  if (!tokenAddress || tokenAddress === "0x0000000000000000000000000000000000000000") {
-    console.error("未设置代币合约地址或地址无效");
+  const tokenAddress = contractAddress || config.contract.tokenAddress;
+  if (!isValidContractAddress(tokenAddress)) {
+    // 不输出错误日志，只是安静地返回null
     return null;
   }
   
@@ -174,31 +175,66 @@ export const getTokenInfo = async () => {
   try {
     const contract = getTokenContract();
     if (!contract) {
-      throw new Error("无法获取合约实例");
+      // 合约未部署，返回默认值，但不抛出错误
+      return {
+        name: "Unknown",
+        symbol: "???",
+        decimals: 18,
+        totalSupply: "0",
+        error: "合约未部署或地址无效"
+      };
     }
     
-    // 并行获取多个信息
-    const [name, symbol, decimals, totalSupply] = await Promise.all([
-      contract.name(),
-      contract.symbol(),
-      contract.decimals(),
-      contract.totalSupply()
-    ]);
+    // 检查合约是否正常响应
+    try {
+      // 先尝试调用 name() 方法检查合约是否可用
+      await contract.name();
+    } catch (error: any) {
+      // 合约调用失败，但不输出错误日志
+      return {
+        name: "Unknown",
+        symbol: "???",
+        decimals: 18,
+        totalSupply: "0",
+        error: "合约调用失败，可能是合约地址错误或合约未部署"
+      };
+    }
     
-    return {
-      name,
-      symbol,
-      decimals,
-      // 格式化总供应量
-      totalSupply: ethers.utils.formatUnits(totalSupply, decimals)
-    };
+    // 获取各个信息，并处理每个调用的错误
+    try {
+      // 并行获取多个信息
+      const [name, symbol, decimals, totalSupply] = await Promise.all([
+        contract.name(),
+        contract.symbol(),
+        contract.decimals(),
+        contract.totalSupply()
+      ]);
+      
+      return {
+        name,
+        symbol,
+        decimals,
+        // 格式化总供应量
+        totalSupply: ethers.utils.formatUnits(totalSupply, decimals)
+      };
+    } catch (error: any) {
+      // 不输出错误日志，返回默认值
+      return {
+        name: "Unknown",
+        symbol: "???",
+        decimals: 18,
+        totalSupply: "0",
+        error: "无法读取合约数据，请确认合约已正确部署"
+      };
+    }
   } catch (error: any) {
-    console.error("获取代币信息失败:", error);
+    // 不输出错误日志，返回默认值
     return {
       name: "Unknown",
       symbol: "???",
       decimals: 18,
-      totalSupply: "0"
+      totalSupply: "0",
+      error: error.message || "未知错误"
     };
   }
 }; 

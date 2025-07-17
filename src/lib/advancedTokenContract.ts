@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { getProvider, getSigner } from './contract';
+import config, { isValidContractAddress } from './config';
 
 // 导入高级代币合约 ABI
 // 注意：部署后需要将 artifacts/contracts/AdvancedToken.sol/AdvancedToken.json 中的 abi 复制到这里
@@ -35,25 +36,39 @@ const advancedTokenAbi = [
 ];
 
 // 部署后的高级代币合约地址（需要在部署后更新）
-// 这里先用一个占位符，后续部署成功后需要替换为实际地址
-const ADVANCED_TOKEN_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000";
+// 从环境变量中获取
+const ADVANCED_TOKEN_CONTRACT_ADDRESS = config.contract.advancedTokenAddress;
 
 /**
  * 获取高级代币合约实例
- * @returns 高级代币合约实例
+ * @returns 高级代币合约实例，如果合约未部署则返回null
  */
 export const getAdvancedTokenContract = async () => {
   const provider = await getProvider();
-  return new ethers.Contract(ADVANCED_TOKEN_CONTRACT_ADDRESS, advancedTokenAbi, provider);
+  const contractAddress = config.contract.advancedTokenAddress;
+  
+  if (!isValidContractAddress(contractAddress)) {
+    // 不输出错误日志，只是安静地返回null
+    return null;
+  }
+  
+  return new ethers.Contract(contractAddress, advancedTokenAbi, provider);
 };
 
 /**
  * 获取可写的高级代币合约实例（需要连接钱包）
- * @returns 可写的高级代币合约实例
+ * @returns 可写的高级代币合约实例，如果合约未部署则返回null
  */
 export const getAdvancedTokenContractWithSigner = async () => {
   const signer = await getSigner();
-  return new ethers.Contract(ADVANCED_TOKEN_CONTRACT_ADDRESS, advancedTokenAbi, signer);
+  const contractAddress = config.contract.advancedTokenAddress;
+  
+  if (!isValidContractAddress(contractAddress)) {
+    // 不输出错误日志，只是安静地返回null
+    return null;
+  }
+  
+  return new ethers.Contract(contractAddress, advancedTokenAbi, signer);
 };
 
 /**
@@ -64,10 +79,13 @@ export const getAdvancedTokenContractWithSigner = async () => {
 export const getAdvancedTokenBalance = async (address: string) => {
   try {
     const contract = await getAdvancedTokenContract();
+    if (!contract) {
+      throw new Error("无法获取合约实例");
+    }
     const balance = await contract.balanceOf(address);
     const decimals = await contract.decimals();
     return ethers.utils.formatUnits(balance, decimals);
-  } catch (error) {
+  } catch (error: any) { // 确保error类型为any
     console.error("获取代币余额失败:", error);
     return "0.0";
   }
@@ -82,6 +100,9 @@ export const getAdvancedTokenBalance = async (address: string) => {
 export const transferAdvancedToken = async (to: string, amount: string) => {
   try {
     const contract = await getAdvancedTokenContractWithSigner();
+    if (!contract) {
+      throw new Error("无法获取合约实例");
+    }
     const decimals = await contract.decimals();
     const amountInWei = ethers.utils.parseUnits(amount, decimals);
     
@@ -92,7 +113,7 @@ export const transferAdvancedToken = async (to: string, amount: string) => {
       success: true,
       hash: receipt.transactionHash
     };
-  } catch (error) {
+  } catch (error: any) { // 确保error类型为any
     console.error("代币转账失败:", error);
     return {
       success: false,
@@ -110,6 +131,9 @@ export const transferAdvancedToken = async (to: string, amount: string) => {
 export const mintAdvancedToken = async (to: string, amount: string) => {
   try {
     const contract = await getAdvancedTokenContractWithSigner();
+    if (!contract) {
+      throw new Error("无法获取合约实例");
+    }
     const decimals = await contract.decimals();
     const amountInWei = ethers.utils.parseUnits(amount, decimals);
     
@@ -120,7 +144,7 @@ export const mintAdvancedToken = async (to: string, amount: string) => {
       success: true,
       hash: receipt.transactionHash
     };
-  } catch (error) {
+  } catch (error: any) { // 确保error类型为any
     console.error("铸造代币失败:", error);
     return {
       success: false,
@@ -137,6 +161,9 @@ export const mintAdvancedToken = async (to: string, amount: string) => {
 export const burnAdvancedToken = async (amount: string) => {
   try {
     const contract = await getAdvancedTokenContractWithSigner();
+    if (!contract) {
+      throw new Error("无法获取合约实例");
+    }
     const decimals = await contract.decimals();
     const amountInWei = ethers.utils.parseUnits(amount, decimals);
     
@@ -147,7 +174,7 @@ export const burnAdvancedToken = async (amount: string) => {
       success: true,
       hash: receipt.transactionHash
     };
-  } catch (error) {
+  } catch (error: any) { // 确保error类型为any
     console.error("销毁代币失败:", error);
     return {
       success: false,
@@ -165,6 +192,9 @@ export const burnAdvancedToken = async (amount: string) => {
 export const burnFromAdvancedToken = async (account: string, amount: string) => {
   try {
     const contract = await getAdvancedTokenContractWithSigner();
+    if (!contract) {
+      throw new Error("无法获取合约实例");
+    }
     const decimals = await contract.decimals();
     const amountInWei = ethers.utils.parseUnits(amount, decimals);
     
@@ -175,7 +205,7 @@ export const burnFromAdvancedToken = async (account: string, amount: string) => 
       success: true,
       hash: receipt.transactionHash
     };
-  } catch (error) {
+  } catch (error: any) { // 确保error类型为any
     console.error("从指定地址销毁代币失败:", error);
     return {
       success: false,
@@ -192,6 +222,9 @@ export const burnFromAdvancedToken = async (account: string, amount: string) => 
 export const setMaxSupply = async (newMaxSupply: string) => {
   try {
     const contract = await getAdvancedTokenContractWithSigner();
+    if (!contract) {
+      throw new Error("无法获取合约实例");
+    }
     const decimals = await contract.decimals();
     const amountInWei = ethers.utils.parseUnits(newMaxSupply, decimals);
     
@@ -202,7 +235,7 @@ export const setMaxSupply = async (newMaxSupply: string) => {
       success: true,
       hash: receipt.transactionHash
     };
-  } catch (error) {
+  } catch (error: any) { // 确保error类型为any
     console.error("设置最大供应量失败:", error);
     return {
       success: false,
@@ -218,34 +251,79 @@ export const setMaxSupply = async (newMaxSupply: string) => {
 export const getAdvancedTokenInfo = async () => {
   try {
     const contract = await getAdvancedTokenContract();
+    if (!contract) {
+      // 合约未部署，返回默认值，但不抛出错误
+      return {
+        name: "Unknown",
+        symbol: "???",
+        decimals: 18,
+        totalSupply: "0",
+        maxSupply: "0",
+        owner: "0x0000000000000000000000000000000000000000",
+        error: "合约未部署或地址无效"
+      };
+    }
     
-    // 并行获取多个信息
-    const [name, symbol, decimals, totalSupply, maxSupply, owner] = await Promise.all([
-      contract.name(),
-      contract.symbol(),
-      contract.decimals(),
-      contract.totalSupply(),
-      contract.maxSupply(),
-      contract.owner()
-    ]);
+    // 检查合约是否正常响应
+    try {
+      // 先尝试调用 name() 方法检查合约是否可用
+      await contract.name();
+    } catch (error: any) {
+      console.error("合约调用失败:", error);
+      return {
+        name: "Unknown",
+        symbol: "???",
+        decimals: 18,
+        totalSupply: "0",
+        maxSupply: "0",
+        owner: "0x0000000000000000000000000000000000000000",
+        error: "合约调用失败，可能是合约地址错误或合约未部署"
+      };
+    }
     
-    return {
-      name,
-      symbol,
-      decimals,
-      totalSupply: ethers.utils.formatUnits(totalSupply, decimals),
-      maxSupply: ethers.utils.formatUnits(maxSupply, decimals),
-      owner
-    };
-  } catch (error) {
-    console.error("获取代币信息失败:", error);
+    // 获取各个信息，并处理每个调用的错误
+    try {
+      // 并行获取多个信息
+      const [name, symbol, decimals, totalSupply, maxSupply, owner] = await Promise.all([
+        contract.name(),
+        contract.symbol(),
+        contract.decimals(),
+        contract.totalSupply(),
+        contract.maxSupply(),
+        contract.owner()
+      ]);
+      
+      return {
+        name,
+        symbol,
+        decimals,
+        totalSupply: ethers.utils.formatUnits(totalSupply, decimals),
+        maxSupply: ethers.utils.formatUnits(maxSupply, decimals),
+        owner
+      };
+    } catch (error: any) {
+      console.error("获取高级代币数据失败:", error);
+      return {
+        name: "Unknown",
+        symbol: "???",
+        decimals: 18,
+        totalSupply: "0",
+        maxSupply: "0",
+        owner: "0x0000000000000000000000000000000000000000",
+        error: "无法读取合约数据，请确认合约已正确部署"
+      };
+    }
+  } catch (error: any) {
+    console.error("获取高级代币信息失败:", error);
+    // 返回默认值，但清晰地表明这些是无效数据
     return {
       name: "Unknown",
       symbol: "???",
       decimals: 18,
       totalSupply: "0",
       maxSupply: "0",
-      owner: "0x0000000000000000000000000000000000000000"
+      owner: "0x0000000000000000000000000000000000000000",
+      error: error.message || "未知错误"
     };
   }
 };
@@ -257,11 +335,20 @@ export const getAdvancedTokenInfo = async () => {
 export const isTokenOwner = async () => {
   try {
     const contract = await getAdvancedTokenContract();
-    const signer = await getSigner();
-    const owner = await contract.owner();
+    if (!contract) {
+      return false; // 如果合约未部署，直接返回false
+    }
     
-    return owner.toLowerCase() === (await signer.getAddress()).toLowerCase();
-  } catch (error) {
+    try {
+      const signer = await getSigner();
+      const owner = await contract.owner();
+      
+      return owner.toLowerCase() === (await signer.getAddress()).toLowerCase();
+    } catch (error: any) {
+      console.error("检查所有者时遇到错误:", error);
+      return false;
+    }
+  } catch (error: any) {
     console.error("检查所有者失败:", error);
     return false;
   }
